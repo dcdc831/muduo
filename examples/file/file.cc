@@ -4,43 +4,41 @@
 #include <thread>
 
 #include "muduo/net/EventLoop.h"
-#include "muduo/net/File.h"
+#include "muduo/net/FileRing.h"
 
 int main() {
   muduo::net::EventLoop loop;
 
   int fd = ::open("testfile.txt", O_RDWR | O_CREAT, 0666);
-  muduo::net::File ioFile(&loop, fd);
+  int fd1 = ::open("testfile1.txt", O_RDWR | O_CREAT, 0666);
 
-  // ioFile.read();
-  // ioFile.write("Hello, io_uring!", 16);
+  muduo::net::FileRing fileRing(&loop);
 
-  // loop.loop();
+  muduo::net::File* file = fileRing.registerFile(fd);
+  muduo::net::File* file1 = fileRing.registerFile(fd1);
 
-  // 测试功能：使用多线程形式，一个线程运行loop.loop()，另一个线程进行ioFile.read()和ioFile.write()操作
+  // Test, two separate threads to read and write two different files
+  // concomitantly.
 
   std::thread ioThread([&]() {
     while (1) {
-      ioFile.read();
-      ioFile.write("Hello, io_uring!", 16);
+      sleep(1);
+      file->read();
+      file->write("Hello, io_uring!", 16);
+    }
+  });
+  std::thread ioThread1([&]() {
+    while (1) {
+      sleep(1);
+      file1->read();
+      file1->write("Hello, io_uring1!", 17);
     }
   });
 
   loop.loop();
 
   ioThread.join();
+  ioThread1.join();
 
-  // pid_t pid = fork();
-  // if (pid == 0) {
-  //   // 子进程
-  //   while (1) {
-  //     ioFile.read();
-  //     ioFile.write("Hello, io_uring!", 16);
-  //   }
-  // } else {
-  //   // 父进程
-
-  //   loop.loop();
-  // }
   return 0;
 }

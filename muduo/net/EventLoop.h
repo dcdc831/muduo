@@ -12,21 +12,19 @@
 #define MUDUO_NET_EVENTLOOP_H
 
 #include <atomic>
+#include <boost/any.hpp>
 #include <functional>
 #include <vector>
 
-#include <boost/any.hpp>
-
-#include "muduo/base/Mutex.h"
+#include "liburing.h"
 #include "muduo/base/CurrentThread.h"
+#include "muduo/base/Mutex.h"
 #include "muduo/base/Timestamp.h"
 #include "muduo/net/Callbacks.h"
 #include "muduo/net/TimerId.h"
 
-namespace muduo
-{
-namespace net
-{
+namespace muduo {
+namespace net {
 
 class Channel;
 class Poller;
@@ -36,8 +34,7 @@ class TimerQueue;
 /// Reactor, at most one per thread.
 ///
 /// This is an interface class, so don't expose too much details.
-class EventLoop : noncopyable
-{
+class EventLoop : noncopyable {
  public:
   typedef std::function<void()> Functor;
 
@@ -106,10 +103,8 @@ class EventLoop : noncopyable
   bool hasChannel(Channel* channel);
 
   // pid_t threadId() const { return threadId_; }
-  void assertInLoopThread()
-  {
-    if (!isInLoopThread())
-    {
+  void assertInLoopThread() {
+    if (!isInLoopThread()) {
       abortNotInLoopThread();
     }
   }
@@ -117,14 +112,11 @@ class EventLoop : noncopyable
   // bool callingPendingFunctors() const { return callingPendingFunctors_; }
   bool eventHandling() const { return eventHandling_; }
 
-  void setContext(const boost::any& context)
-  { context_ = context; }
+  void setContext(const boost::any& context) { context_ = context; }
 
-  const boost::any& getContext() const
-  { return context_; }
+  const boost::any& getContext() const { return context_; }
 
-  boost::any* getMutableContext()
-  { return &context_; }
+  boost::any* getMutableContext() { return &context_; }
 
   static EventLoop* getEventLoopOfCurrentThread();
 
@@ -133,13 +125,13 @@ class EventLoop : noncopyable
   void handleRead();  // waked up
   void doPendingFunctors();
 
-  void printActiveChannels() const; // DEBUG
+  void printActiveChannels() const;  // DEBUG
 
   typedef std::vector<Channel*> ChannelList;
 
   bool looping_; /* atomic */
   std::atomic<bool> quit_;
-  bool eventHandling_; /* atomic */
+  bool eventHandling_;          /* atomic */
   bool callingPendingFunctors_; /* atomic */
   int64_t iteration_;
   const pid_t threadId_;
@@ -158,6 +150,9 @@ class EventLoop : noncopyable
 
   mutable MutexLock mutex_;
   std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_);
+
+  struct io_uring ring_;
+  int eventfd;
 };
 
 }  // namespace net
