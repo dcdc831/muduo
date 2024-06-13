@@ -14,28 +14,32 @@ if(CMAKE_PROJECT_NAME STREQUAL "muduo")
 endif()
 
 set(CXX_FLAGS
- -g
- # -DVALGRIND
- -DCHECK_PTHREAD_RETURN_VALUE
- -D_FILE_OFFSET_BITS=64
- -Wall
- -Wextra
- -Werror
- -Wconversion
- -Wno-unused-parameter
- -Wold-style-cast
- -Woverloaded-virtual
- -Wpointer-arith
- -Wshadow
- -Wwrite-strings
- -march=native
- # -MMD
- -std=c++11
- -rdynamic
- )
+  -g
+
+  # -DVALGRIND
+  -DCHECK_PTHREAD_RETURN_VALUE
+  -D_FILE_OFFSET_BITS=64
+  -Wall
+  -Wextra
+  -Werror
+  -Wconversion
+  -Wno-unused-parameter
+  -Wold-style-cast
+  -Woverloaded-virtual
+  -Wpointer-arith
+  -Wshadow
+  -Wwrite-strings
+  -march=native
+
+  # -MMD
+  -std=c++11
+  -rdynamic
+)
+
 if(CMAKE_BUILD_BITS EQUAL 32)
   list(APPEND CXX_FLAGS "-m32")
 endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND CXX_FLAGS "-Wno-null-dereference")
   list(APPEND CXX_FLAGS "-Wno-sign-conversion")
@@ -43,6 +47,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND CXX_FLAGS "-Wthread-safety")
   list(REMOVE_ITEM CXX_FLAGS "-rdynamic")
 endif()
+
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
@@ -74,24 +79,31 @@ find_library(THRIFT_LIBRARY NAMES thrift)
 if(CARES_INCLUDE_DIR AND CARES_LIBRARY)
   message(STATUS "found cares")
 endif()
+
 if(CURL_FOUND)
   message(STATUS "found curl")
 endif()
+
 if(PROTOBUF_FOUND)
   message(STATUS "found protobuf")
 endif()
+
 if(TCMALLOC_INCLUDE_DIR AND TCMALLOC_LIBRARY)
   message(STATUS "found tcmalloc")
 endif()
+
 if(ZLIB_FOUND)
   message(STATUS "found zlib")
 endif()
+
 if(HIREDIS_INCLUDE_DIR AND HIREDIS_LIBRARY)
   message(STATUS "found hiredis")
 endif()
+
 if(GD_INCLUDE_DIR AND GD_LIBRARY)
   message(STATUS "found gd")
 endif()
+
 if(THRIFT_COMPILER AND THRIFT_INCLUDE_DIR AND THRIFT_LIBRARY)
   message(STATUS "found thrift")
 endif()
@@ -114,4 +126,3 @@ else()
     add_subdirectory(examples/cdns)
   endif()
 endif()
-
