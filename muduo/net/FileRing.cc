@@ -23,7 +23,7 @@ FileRing::FileRing(EventLoop* loop)
 FileRing::~FileRing() { ::close(eventFd_); }
 
 void FileRing::setUpIoUring() {
-  io_uring_queue_init(32, &ring_, 0);
+  io_uring_queue_init(64, &ring_, 0);
   io_uring_register_eventfd(&ring_, eventFd_);
 }
 
