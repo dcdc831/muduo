@@ -29,6 +29,10 @@ See .travis.yml for additional packages for building more examples.
 To build, run:
   ./build.sh
 
+IMPORTANT:
+To build File, run:
+  ./buildcopy.sh
+
 See https://github.com/chenshuo/muduo-tutorial for
 how to use muduo in your project.
   __  __           _
